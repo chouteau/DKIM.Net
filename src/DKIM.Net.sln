@@ -1,9 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DKIM.Net", "DKIM.Net\DKIM.Net.csproj", "{1CFB14B2-E0FF-4491-820F-490CFFBAA47A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DKIM.Net.Tests", "DKIM.Net.Tests\DKIM.Net.Tests.csproj", "{DD761CA6-0CFE-4BD9-8DF5-4BBFFA4482F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DKIMCore", "DKIMCore\DKIMCore.csproj", "{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,8 +39,23 @@ Global
 		{DD761CA6-0CFE-4BD9-8DF5-4BBFFA4482F0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DD761CA6-0CFE-4BD9-8DF5-4BBFFA4482F0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DD761CA6-0CFE-4BD9-8DF5-4BBFFA4482F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Debug|x86.Build.0 = Debug|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Release|x86.ActiveCfg = Release|Any CPU
+		{0AFA8D85-4583-4FE4-81E2-D7F527CD7F9E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DCA12F9E-7547-4FAE-ACB6-B4CB5E72D003}
 	EndGlobalSection
 EndGlobal

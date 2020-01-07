@@ -3,3 +3,7 @@
 ################################################################################
 
 /.vs
+/src/.vs/DKIM.Net/v16/Server/sqlite3
+/src/DKIMCore/bin/Debug
+/src/DKIMCore/obj
+/Nuget

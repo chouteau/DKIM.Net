@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="example.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="example.txt" />
+  </ItemGroup>
+
+</Project>
