@@ -77,7 +77,7 @@ namespace DKIMCoreTests.Tests
 			var parsedEmail = DKIMService.Parse(emailContent);
 			var signatureHeader = parsedEmail.Headers["DKIM-Signature"].Value;
 			var dkimHeaderValue = new DKIMCore.DkimHeaderValue(signatureHeader);
-			var signature = DKIMSettings.Encoding.GetBytes(dkimHeaderValue.Signature);
+			var signature = message.HeadersEncoding.GetBytes(dkimHeaderValue.Signature);
 			var canonicalized = DKIMService.GetCanocalizedMessageRaw(emailContent);
 
 			var pubKey = DKIMService.GetPublicKey();

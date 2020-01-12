@@ -30,22 +30,22 @@ namespace DKIMCore
 
 		public void Sign(System.Net.Mail.MailMessage message)
 		{
-			message.BodyEncoding = DKIMSettings.Encoding;
-			message.SubjectEncoding = DKIMSettings.Encoding;
-			message.HeadersEncoding = DKIMSettings.Encoding;
-
 			// get email content and generate initial signature
 			var rawMessageText = message.RawMessage();
 			var email = Parse(rawMessageText);
+			email.BodyEncoding = message.BodyEncoding;
+			email.HeaderEncoding = message.HeadersEncoding;
 			var dkimHeaderValue = DkimSigner.GenerateDkimHeaderValue(email);
 
 			// signature value get formatted so add dummy signature value then remove it
 			message.Headers.Add(SIGNATURE_KEY, dkimHeaderValue.ToString());
 			var dkimRawMessageText = message.RawMessage();
-			email = Parse(dkimRawMessageText);
+			var emailWithDkim = Parse(dkimRawMessageText);
+			emailWithDkim.BodyEncoding = message.BodyEncoding;
+			emailWithDkim.HeaderEncoding = message.HeadersEncoding;
 
 			// sign email
-			var signature = DkimSigner.GenerateSignature(email);
+			var signature = DkimSigner.GenerateSignature(emailWithDkim);
 
 			// Add Signature to dkimvalue header
 			dkimHeaderValue.Signature = signature;

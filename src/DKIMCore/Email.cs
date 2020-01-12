@@ -27,5 +27,8 @@ namespace DKIMCore
         public Dictionary<string, EmailHeader> Headers { get; set; }
 		public string Body { get; set; }
 		public string Raw { get; set; }
-	}
+        public System.Text.Encoding HeaderEncoding { get; set; }
+        public System.Text.Encoding BodyEncoding { get; set; }
+
+    }
 }

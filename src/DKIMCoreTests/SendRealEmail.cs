@@ -29,7 +29,8 @@ namespace DKIMCoreTests
 		{
 			var message = new System.Net.Mail.MailMessage();
 			var subject = message.Subject = "test dkim subject";
-			var body = message.Body = "test dkim body";
+			var body = message.Body = "<htm><body>test <b>dkim</b> body</body></html>";
+			message.IsBodyHtml = true;
 			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
 			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
 			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");

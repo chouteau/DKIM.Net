@@ -16,7 +16,7 @@ namespace DKIMCore
 			SigningAlgorithm = SigningAlgorithm.RSASha256;
 			HeaderCanonalization = DkimCanonicalizationAlgorithm.Relaxed;
 			BodyCanonalization = DkimCanonicalizationAlgorithm.Relaxed;
-			Encoding = Encoding.UTF8;
+			// Encoding = Encoding.UTF8;
 			HeaderKeyList = new List<string>()
 			{
 				"From",
@@ -32,7 +32,7 @@ namespace DKIMCore
 		public SigningAlgorithm SigningAlgorithm { get; set; }
 		public DkimCanonicalizationAlgorithm HeaderCanonalization { get; set; }
 		public DkimCanonicalizationAlgorithm BodyCanonalization { get; set; }
-		public Encoding Encoding { get; set; }
+		// public Encoding Encoding { get; set; }
 
 		internal string GetAlgorithmName()
 		{

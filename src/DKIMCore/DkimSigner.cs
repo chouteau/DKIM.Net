@@ -38,7 +38,7 @@ namespace DKIMCore
 		public DkimHeaderValue GenerateDkimHeaderValue(Email email)
 		{
 			var result = new DkimHeaderValue(DKIMSettings);
-			result.HashOfBody = SignBody(email.Body);
+			result.HashOfBody = SignBody(email);
 			result.Signature = null;
 			return result;
 		}
@@ -53,17 +53,17 @@ namespace DKIMCore
 		    var headers = DkimCanonicalizer.CanonicalizeHeaders(email.Headers, true);
 
 			// assumes signature ends with "b="
-			var headerBuffer = DKIMSettings.Encoding.GetBytes(headers);
+			var headerBuffer = email.HeaderEncoding.GetBytes(headers);
 			var headerSign = PrivateKeySigner.Sign(headerBuffer);
 			return headerSign;
 		}
 
 
-		public string SignBody(string body)
+		public string SignBody(Email email)
 		{
-			var cb = DkimCanonicalizer.CanonicalizeBody(body);
+			var cb = DkimCanonicalizer.CanonicalizeBody(email.Body);
 
-			var canonalizedBodyBuffer = DKIMSettings.Encoding.GetBytes(cb);
+			var canonalizedBodyBuffer = email.BodyEncoding.GetBytes(cb);
 			var hash = PrivateKeySigner.Hash(canonalizedBodyBuffer);
 			var result = Convert.ToBase64String(hash);
 			return result;
