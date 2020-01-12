@@ -5,11 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="example.txt" />
+    <Compile Remove="DomainKeys\**" />
+    <EmbeddedResource Remove="DomainKeys\**" />
+    <None Remove="DomainKeys\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="example.txt" />
+    <Compile Remove="EmailSigner.cs" />
+    <Compile Remove="FullEmailSigner.cs" />
+    <Compile Remove="MailMessageText.cs" />
+    <Compile Remove="NameValueCollectionExtensions.cs" />
+    <Compile Remove="OpenSslKey.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
   </ItemGroup>
 
 </Project>

@@ -9,28 +9,22 @@
 
 using System;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace DKIM
+namespace DKIMCore
 {
-	public static class WhiteSpace
+	internal static class WhiteSpace
 	{
-
-
 		public static bool IsWhiteSpace(this char c)
 		{
 			return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 		}
-
-
 
 		/// <summary>
 		/// Reduces all adjacent white space characters to a single space character.
 		/// </summary>
 		/// <param name="text"></param>
 		/// <returns></returns>
-		[NotNull]
-        public static string ReduceWitespace([NotNull]this string text)
+        public static string ReduceWitespace(this string text)
 		{
 		    if (text == null)
 		    {
@@ -74,8 +68,7 @@ namespace DKIM
 		/// </summary>
 		/// <param name="text"></param>
 		/// <returns></returns>
-        [NotNull]
-        public static string RemoveWhitespace([NotNull]this string text)
+        public static string RemoveWhitespace(this string text)
 		{
 		    if (text == null)
 		    {

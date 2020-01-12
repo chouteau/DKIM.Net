@@ -11,76 +11,55 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
-namespace DKIM
+namespace DKIMCore
 {
-	public enum DkimCanonicalizationAlgorithm
-	{
-		Simple,
-		Relaxed
-	}
-
-
 	/*
 	* 
 	* see http://www.dkim.org/specs/rfc4871-dkimbase.html#canonicalization
 	* 
 	* 
 	* */
-	public static class DkimCanonicalizer
+	internal class DKIMCanonicalizer : IDKIMCanonicalizer
 	{
+		public DKIMCanonicalizer(DKIMSettings dKIMSettings)
+		{
+			this.DKIMSettings = dKIMSettings;
+		}
 
+		protected DKIMSettings DKIMSettings { get; }
 
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="headers">The existing email headers</param>
-		/// <param name="type">Canonicalization algorithm to be used</param>
 		/// <param name="includeSignatureHeader">Include the 'DKIM-Signature' header </param>
-		/// <param name="headersToSign">The headers to sign. When no heaaders are suppiled the required headers are used.</param>
 		/// <returns></returns>
-        [NotNull]
-		public static string CanonicalizeHeaders(
-            [NotNull] Dictionary<string, EmailHeader> headers, 
-            DkimCanonicalizationAlgorithm type, 
-            bool includeSignatureHeader, 
-            params string[] headersToSign)
+		public string CanonicalizeHeaders(
+			Dictionary<string, EmailHeader> headers,
+			bool includeSignatureHeader)
 		{
-		    if (headers == null)
-		    {
-		        throw new ArgumentNullException("headers");
-		    }
-
-		    if (includeSignatureHeader)
+			if (headers == null)
 			{
-				if(headersToSign == null || headersToSign.Length == 0)
-				{
-					headersToSign = new[] {"From", DkimSigner.SignatureKey};
-				}
-				else
-				{
-					var tmp = new string[headersToSign.Length + 1];
-					Array.Copy(headersToSign, 0, tmp, 0, headersToSign.Length);
-					tmp[headersToSign.Length] = DkimSigner.SignatureKey;
-					headersToSign = tmp;
-				}
-			}
-			else
-			{
-				if(headersToSign == null || headersToSign.Length == 0)
-				{
-					headersToSign = new[] {"From"};
-				}
+				throw new ArgumentNullException("headers");
 			}
 
-			
+			var headersToSign = new List<string>();
+			foreach (var headerKey in DKIMSettings.HeaderKeyList)
+			{
+				headersToSign.Add(headerKey);
+			}
+
+			if (includeSignatureHeader)
+			{
+				headersToSign.Add(DKIMService.SIGNATURE_KEY);
+			}
 
 			ValidateHeaders(headers, headersToSign);
 
 			var sb = new StringBuilder();
 
-			switch (type)
+			switch (DKIMSettings.HeaderCanonalization)
 			{
 
 				/*
@@ -94,31 +73,33 @@ namespace DKIM
 				 * */
 				case DkimCanonicalizationAlgorithm.Simple:
 					{
-						
+
 						foreach (var key in headersToSign)
 						{
-                            if(key == null)
-                            {
-                                continue;
-                            }
-
 							var h = headers[key];
 							sb.Append(h.Key);
 							sb.Append(':');
-							sb.Append(h.Value);
-							sb.Append(Email.NewLine);
+							if (key == DKIMService.SIGNATURE_KEY)
+							{
+								// Remove b= value
+								var value = h.Value;
+								value = System.Text.RegularExpressions.Regex.Replace(value, "b=.*$", "b=", System.Text.RegularExpressions.RegexOptions.Singleline);
+								sb.Append(" " + value.Trim());
+							}
+							else
+							{
+								sb.Append(h.Value);
+							}
+							sb.Append(System.Environment.NewLine);
 						}
 
 						if (includeSignatureHeader)
 						{
-							sb.Length -= Email.NewLine.Length;
+							sb.Length -= System.Environment.NewLine.Length;
 						}
 
 						break;
-
 					}
-
-
 
 
 				/*
@@ -150,28 +131,28 @@ namespace DKIM
 				 * */
 				case DkimCanonicalizationAlgorithm.Relaxed:
 					{
-						
+
 						foreach (var key in headersToSign)
 						{
-                            if(key == null)
-                            {
-                                continue;
-                            }
+							if (key == null)
+							{
+								continue;
+							}
 
 							var h = headers[key];
 							sb.Append(h.Key.Trim().ToLower());
 							sb.Append(':');
 
 							sb.Append(h.FoldedValue
-								? h.Value.Trim().Replace(Email.NewLine, string.Empty).ReduceWitespace()
+								? h.Value.Trim().Replace(System.Environment.NewLine, string.Empty).ReduceWitespace()
 								: h.Value.Trim().ReduceWitespace());
 
-							sb.Append(Email.NewLine);
+							sb.Append(System.Environment.NewLine);
 						}
 
 						if (includeSignatureHeader)
 						{
-							sb.Length -= Email.NewLine.Length;
+							sb.Length -= System.Environment.NewLine.Length;
 						}
 
 						break;
@@ -188,44 +169,16 @@ namespace DKIM
 		}
 
 
-		private static void ValidateHeaders(
-            [NotNull]Dictionary<string, EmailHeader> headers, 
-            [NotNull]IEnumerable<string> headersToSign)
-		{
-			// From header MUST be included
-            //if(!headers.ContainsKey("from"))
-            //{
-            //    throw new InvalidDataException("The FROM header must be included.");
-            //}
-
-			// check all headers that are to be signed exist
-			var invalidHeaders = headersToSign
-                .Where(x => x != null)
-                .Select(x => x.Trim())
-                .Where(x => !headers.ContainsKey(x))
-                .ToList();
-
-		    if (invalidHeaders.Count > 0)
-			{
-				throw new ArgumentException("The following headers to be signed do not exist: " + string.Join(", ", invalidHeaders.ToArray()));
-			}
-		}
-
-
-
-        [NotNull]
-		public static string CanonicalizeBody(
-            [CanBeNull]string body, 
-            DkimCanonicalizationAlgorithm type)
+		public string CanonicalizeBody(string body)
 		{
 			if (body == null)
 			{
 				body = string.Empty;
 			}
 
-			var sb = new StringBuilder(body.Length + Email.NewLine.Length);
+			var sb = new StringBuilder(body.Length + System.Environment.NewLine.Length);
 
-			switch (type)
+			switch (DKIMSettings.BodyCanonalization)
 			{
 
 
@@ -332,5 +285,29 @@ namespace DKIM
 			return sb.ToString();
 
 		}
+
+		private void ValidateHeaders(
+			Dictionary<string, EmailHeader> headers,
+			List<string> headersToSign)
+		{
+			// From header MUST be included
+			//if(!headers.ContainsKey("from"))
+			//{
+			//    throw new InvalidDataException("The FROM header must be included.");
+			//}
+
+			// check all headers that are to be signed exist
+			var invalidHeaders = headersToSign
+				.Where(x => x != null)
+				.Select(x => x.Trim())
+				.Where(x => !headers.ContainsKey(x))
+				.ToList();
+
+			if (invalidHeaders.Count > 0)
+			{
+				throw new ArgumentException("The following headers to be signed do not exist: " + string.Join(", ", invalidHeaders.ToArray()));
+			}
+		}
+
 	}
 }

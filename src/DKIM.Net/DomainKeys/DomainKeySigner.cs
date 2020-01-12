@@ -207,8 +207,8 @@ namespace DKIM
 
             var text = DomainKeyCanonicalizer.Canonicalize(email, this.Canonicalization, _headersToSign);
 
-            Trace.WriteLine("DomainKey canonicalized headers:");
-            Trace.WriteLine(text);
+            // Trace.WriteLine("DomainKey canonicalized headers:");
+            // Trace.WriteLine(text);
             //if (this.Debug != null)
             //{
             //    this.Debug.WriteContent("DomainKey canonicalized headers", text);

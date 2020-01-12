@@ -6,7 +6,7 @@
  * 
  * 
  * */
-namespace DKIM
+namespace DKIMCore
 {
     /// <summary>
     /// Stores the origional header key and value and wether or not the value is folded.
@@ -29,5 +29,9 @@ namespace DKIM
         /// Indicates that the value is folded over multiple lines.
         /// </summary>
         public bool FoldedValue;
+        public override string ToString()
+        {
+            return $"{Key}:{Value}";
+        }
     }
 }

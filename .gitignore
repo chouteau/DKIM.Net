@@ -7,3 +7,12 @@
 /src/DKIMCore/bin/Debug
 /src/DKIMCore/obj
 /Nuget
+/src/.vs/DKIM.Net/DesignTimeBuild
+/src/DKIM.Net.Tests/LocalDatas
+/src/packages/BouncyCastle.1.8.5
+/src/DKIMCoreTests/obj
+/src/DKIMCoreTests/LocalDatas
+/src/DKIMCoreTests/bin/Debug/netcoreapp3.1
+/src/DKIMCoreTests/LocalConfig
+/src/TestResults
+/src/.vs/DKIM.Net/v16/TestStore/0

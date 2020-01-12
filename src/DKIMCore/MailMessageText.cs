@@ -3,11 +3,10 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Reflection;
-using JetBrains.Annotations;
 
-namespace DKIM
+namespace DKIMCore
 {
-    public static class MailMessageText
+    internal static class MailMessageText
     {
         private static readonly Func<Stream, object> MailWriterFactory;
         private static readonly Action<MailMessage, object, bool, bool> Send3;
@@ -79,8 +78,8 @@ namespace DKIM
         /// <summary>
         /// Converts the MailMessage entire email contents to a string.
         /// </summary>
-        [NotNull]
-        public static string GetText([NotNull]this MailMessage message)
+        [Obsolete("Use RawMessage() instead" , true)]
+        public static string GetText(this MailMessage message)
         {
             if (message == null)
             {

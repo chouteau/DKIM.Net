@@ -331,13 +331,13 @@ namespace DKIM
 		public string SignBody(string body)
 		{
 
-            Trace.WriteLine("DKIM body:");
-            Trace.WriteLine(body);
+            // Trace.WriteLine("DKIM body:");
+            // Trace.WriteLine(body);
 
 			var cb = DkimCanonicalizer.CanonicalizeBody(body, this.BodyCanonicalization);
 
-            Trace.WriteLine("DKIM canonicalized body:");
-            Trace.WriteLine(cb);
+            // Trace.WriteLine("DKIM canonicalized body:");
+            // Trace.WriteLine(cb);
 
             //if (this.Debug != null)
             //{
