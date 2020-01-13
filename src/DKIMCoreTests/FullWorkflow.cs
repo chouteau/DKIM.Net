@@ -40,6 +40,35 @@ namespace DKIMCoreTests.Tests
 		protected DKIMCore.IEmailSigner EmailSigner { get; private set; }
 
 		[TestMethod]
+		public void Canonicanize_Body()
+		{
+			var message = new System.Net.Mail.MailMessage();
+			var subject = message.Subject = "test dkim subject";
+			var body = new StringBuilder();
+			body.AppendLine("<html>");
+			body.AppendLine(string.Empty);
+			body.AppendLine(string.Empty);
+			body.AppendLine(string.Empty);
+			body.AppendLine(string.Empty);
+			body.AppendLine("dkim body");
+			body.AppendLine(string.Empty);
+			body.AppendLine("</html>");
+			body.AppendLine(string.Empty);
+			body.AppendLine(string.Empty);
+			message.Body = body.ToString();
+			message.IsBodyHtml = true;
+			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
+			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
+			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");
+			var to = new System.Net.Mail.MailAddress(toSetting, "testto");
+			message.To.Add(to);
+
+			DKIMService.Sign(message);
+			var originalContent = DKIMService.GetMailMessageRaw(message);
+
+		}
+
+		[TestMethod]
 		public void Send_Email_And_Check_It()
 		{
 			var message = new System.Net.Mail.MailMessage();

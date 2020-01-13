@@ -33,6 +33,7 @@ namespace DKIMCore
 			// get email content and generate initial signature
 			var rawMessageText = message.RawMessage();
 			var email = Parse(rawMessageText);
+			email.OriginalBody = message.Body;
 			email.BodyEncoding = message.BodyEncoding;
 			email.HeaderEncoding = message.HeadersEncoding;
 			var dkimHeaderValue = DkimSigner.GenerateDkimHeaderValue(email);
@@ -95,7 +96,7 @@ namespace DKIMCore
 						return new Email()
 						{ 
 							Headers = headers, 
-							Body = body, 
+							RawBody = body, 
 							Raw = emailRawContent
 						};
 					}
@@ -130,7 +131,7 @@ namespace DKIMCore
 			return new Email 
 			{ 
 				Headers = headers, 
-				Body = string.Empty, 
+				RawBody = string.Empty, 
 				Raw = emailRawContent 
 			};
 		}

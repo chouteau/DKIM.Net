@@ -25,7 +25,7 @@ namespace DKIMCore
             var ms = new MemoryStream();
             var mailWriter = MailWriterConstructor.Invoke(new object[] { ms });
             SendMethod.Invoke(self, Flags, null, new[] { mailWriter, true, true }, null);
-            var result = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+            var result = self.BodyEncoding.GetString(ms.ToArray());
             CloseMethod.Invoke(mailWriter, Flags, null, new object[] { }, null);
             return result;
         }
