@@ -27,15 +27,28 @@ namespace DKIMCoreTests
 		[TestMethod]
 		public void Send()
 		{
+
 			var message = new System.Net.Mail.MailMessage();
-			var subject = message.Subject = "test dkim subject";
-			var body = message.Body = "<htm><body>test <b>dkim</b> body</body></html>";
+			var subject = message.Subject = $"test dkim subject {DateTime.Now:HH:mm:ss}";
+			var body = new StringBuilder();
+			body.AppendLine("<html>");
+			body.AppendLine("	<body>");
+			body.AppendLine("		Test <b>DKIM</b><br/>");
+			for (int i = 0; i < 50; i++)
+			{
+				body.AppendLine($"		<span>big line big line big line big line big line big line big line big line big line big line big line big line big line big line{i}</span>");
+			}
+			body.AppendLine("	</body>");
+			body.AppendLine("</html>");
+			message.Body = body.ToString();
 			message.IsBodyHtml = true;
 			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
 			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
 			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");
-			var to = new System.Net.Mail.MailAddress(toSetting, "testto");
+			var to = new System.Net.Mail.MailAddress("jdmbpqzidedhpj@dkimvalidator.com", "testto");
 			message.To.Add(to);
+			var dkimDomain = Configuration.GetSection("SmtpSettings").GetValue<string>("DKIMDomain");
+			message.Headers.Add("Message-Id", $"<{Guid.NewGuid()}@{dkimDomain}>");
 
 			DKIMService.Sign(message);
 

@@ -56,6 +56,8 @@ namespace DKIMCoreTests
 				config.HeaderKeyList = dkimHeaders.Split(",").ToList();
 				config.PublicKey = publicKey;
 				config.PrivateKey = privateKey;
+				config.HeaderCanonalization = DkimCanonicalizationAlgorithm.Relaxed;
+				config.BodyCanonalization = DkimCanonicalizationAlgorithm.Simple;
 			});
 		}
 

@@ -87,11 +87,10 @@ namespace DKIMCore
 				// process headers
 				while ((line = reader.ReadLine()) != null)
 				{
-
 					if (line == string.Empty)
 					{
 						var body = reader.ReadToEnd();
-						body = body.Replace(System.Environment.NewLine, string.Empty);
+						// body = body.Replace(System.Environment.NewLine, string.Empty);
 						// end of headers
 						return new Email()
 						{ 
@@ -100,7 +99,6 @@ namespace DKIMCore
 							Raw = emailRawContent
 						};
 					}
-
 
 					// check for folded value
 					if (lastKey != null && line.Length > 0 && line[0].IsWhiteSpace())
@@ -111,7 +109,6 @@ namespace DKIMCore
 
 						continue;
 					}
-
 
 					// parse key & value 
 					int sep = line.IndexOf(':');
@@ -125,9 +122,7 @@ namespace DKIMCore
 					var value = line.Substring(sep + 1);
 					lastKey = key.Trim().ToLower();
 
-
 					headers.Add(lastKey, new EmailHeader { Key = key, Value = value });
-
 				}
 			}
 
@@ -152,8 +147,8 @@ namespace DKIMCore
 			var dkimHeaderValue = new DkimHeaderValue(dkimSignatureForCheck);
 			dkimHeaderValue.Signature = null;
 
+			// Truncated first param before 70 caracters;
 			var dkimHeader = dkimHeaderValue.ToTruncatedValue();
-			// Truncated first param befor 70 caracters;
 
 			messageBuilder.AppendLine(dkimHeader);
 

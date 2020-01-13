@@ -30,7 +30,6 @@ namespace DKIMCoreTests.Tests
 			DKIMSettings = m_WebHost.Services.GetRequiredService<DKIMCore.DKIMSettings>();
 			Configuration = m_WebHost.Services.GetRequiredService<IConfiguration>();
 			PrivateKeySigner = m_WebHost.Services.GetRequiredService<DKIMCore.IPrivateKeySigner>();
-			DkimCanonicalizer = m_WebHost.Services.GetRequiredService<DKIMCore.IDKIMCanonicalizer>();
 			EmailSigner = m_WebHost.Services.GetRequiredService<DKIMCore.IEmailSigner>();
 		}
 
@@ -38,7 +37,6 @@ namespace DKIMCoreTests.Tests
 		protected DKIMCore.IDKIMService DKIMService { get; private set; }
 		protected DKIMCore.DKIMSettings DKIMSettings { get; private set; }
 		protected DKIMCore.IPrivateKeySigner PrivateKeySigner { get; private set; }
-		protected DKIMCore.IDKIMCanonicalizer DkimCanonicalizer { get; private set; }
 		protected DKIMCore.IEmailSigner EmailSigner { get; private set; }
 
 		[TestMethod]
@@ -46,7 +44,19 @@ namespace DKIMCoreTests.Tests
 		{
 			var message = new System.Net.Mail.MailMessage();
 			var subject = message.Subject = "test dkim subject";
-			var body = message.Body = "test dkim body";
+			var body = new StringBuilder();
+			body.AppendLine("<html>");
+			body.AppendLine("	<body>");
+			body.AppendLine("		Test <b>DKIM</b><br/>");
+			for (int i = 0; i < 50; i++)
+			{
+				body.AppendLine($"		<span>big line big line big line big line big line big line big line big line big line big line big line big line big line big line{i}</span>");
+			}
+			body.AppendLine("	</body>");
+			body.AppendLine("</html>");
+
+			message.Body = body.ToString();
+			message.IsBodyHtml = true;
 			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
 			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
 			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");

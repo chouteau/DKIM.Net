@@ -207,7 +207,6 @@ namespace DKIMCore
 
 							while ((line = reader.ReadLine()) != null)
 							{
-
 								if (line == string.Empty)
 								{
 									emptyLineCount++;
@@ -220,10 +219,8 @@ namespace DKIMCore
 									emptyLineCount--;
 								}
 
-
-								sb.AppendLine(line.TrimEnd().ReduceWitespace());
-
-
+								var reducedWhiteSpaceList = line.TrimEnd().ReduceWitespace();
+								sb.AppendLine(reducedWhiteSpaceList);
 							}
 						}
 
@@ -252,7 +249,6 @@ namespace DKIMCore
 
 							while ((line = reader.ReadLine()) != null)
 							{
-
 								if (line == string.Empty)
 								{
 									emptyLineCount++;
@@ -282,7 +278,8 @@ namespace DKIMCore
 					}
 			}
 
-			return sb.ToString();
+			var canonicalizedBody = sb.ToString();
+			return canonicalizedBody;
 
 		}
 
