@@ -26,18 +26,20 @@ namespace DKIMCoreTests.Tests
 		public void Initialize()
 		{
 			m_WebHost = (IWebHost)AppDomain.CurrentDomain.GetData("WebHhost");
-			DKIMService = m_WebHost.Services.GetRequiredService<DKIMCore.IDKIMService>();
+			DKIMService = (DKIMCore.DKIMService) m_WebHost.Services.GetRequiredService<DKIMCore.IDKIMService>();
 			DKIMSettings = m_WebHost.Services.GetRequiredService<DKIMCore.DKIMSettings>();
 			Configuration = m_WebHost.Services.GetRequiredService<IConfiguration>();
 			PrivateKeySigner = m_WebHost.Services.GetRequiredService<DKIMCore.IPrivateKeySigner>();
-			EmailSigner = m_WebHost.Services.GetRequiredService<DKIMCore.IEmailSigner>();
+			EmailSigner = (DKIMCore.DkimSigner) m_WebHost.Services.GetRequiredService<DKIMCore.IEmailSigner>();
+			EmailMessageRawContentReader = m_WebHost.Services.GetRequiredService<DKIMCore.IEmailMessageRawContentReader>();
 		}
 
 		protected IConfiguration Configuration { get; private set; }
-		protected DKIMCore.IDKIMService DKIMService { get; private set; }
+		internal DKIMCore.DKIMService DKIMService { get; private set; }
 		protected DKIMCore.DKIMSettings DKIMSettings { get; private set; }
 		protected DKIMCore.IPrivateKeySigner PrivateKeySigner { get; private set; }
-		protected DKIMCore.IEmailSigner EmailSigner { get; private set; }
+		internal DKIMCore.DkimSigner EmailSigner { get; private set; }
+		internal DKIMCore.IEmailMessageRawContentReader EmailMessageRawContentReader { get; private set; }
 
 		[TestMethod]
 		public void Canonicanize_Body()
@@ -64,7 +66,7 @@ namespace DKIMCoreTests.Tests
 			message.To.Add(to);
 
 			DKIMService.Sign(message);
-			var originalContent = DKIMService.GetMailMessageRaw(message);
+			var originalContent = EmailMessageRawContentReader.GetRawContent(message);
 
 		}
 
@@ -72,7 +74,13 @@ namespace DKIMCoreTests.Tests
 		public void Send_Email_And_Check_It()
 		{
 			var message = new System.Net.Mail.MailMessage();
-			var subject = message.Subject = "test dkim subject";
+			var encoding = Encoding.UTF8;
+			message.BodyEncoding = encoding;
+			message.SubjectEncoding = encoding;
+			message.HeadersEncoding = encoding;
+			message.SubjectEncoding = encoding;
+
+			var subject = message.Subject = "test dkim é subject";
 			var body = new StringBuilder();
 			body.AppendLine("<html>");
 			body.AppendLine("	<body>");
@@ -88,12 +96,12 @@ namespace DKIMCoreTests.Tests
 			message.IsBodyHtml = true;
 			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
 			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
-			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");
+			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "test é from");
 			var to = new System.Net.Mail.MailAddress(toSetting, "testto");
 			message.To.Add(to);
 
 			DKIMService.Sign(message);
-			var originalContent = DKIMService.GetMailMessageRaw(message);
+			var originalContent = EmailMessageRawContentReader.GetRawContent(message);
 
 			var smtp = new System.Net.Mail.SmtpClient();
 			smtp.DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.SpecifiedPickupDirectory;
@@ -114,6 +122,8 @@ namespace DKIMCoreTests.Tests
 
 			var emailContent = System.IO.File.ReadAllText(emailTestFile);
 			var parsedEmail = DKIMService.Parse(emailContent);
+
+
 			var signatureHeader = parsedEmail.Headers["DKIM-Signature"].Value;
 			var dkimHeaderValue = new DKIMCore.DkimHeaderValue(signatureHeader);
 			var signature = message.HeadersEncoding.GetBytes(dkimHeaderValue.Signature);
@@ -125,6 +135,8 @@ namespace DKIMCoreTests.Tests
 			sig.Init(false, rsaKey);
 			var input = Encoding.UTF8.GetBytes(canonicalized);
 			sig.BlockUpdate(input, 0, input.Length);
+			var generatedBuffer = sig.GenerateSignature();
+			var generated = Convert.ToBase64String(generatedBuffer);
 
 			Check.That(sig.VerifySignature(signature)).IsTrue();
 

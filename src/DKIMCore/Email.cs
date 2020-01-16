@@ -17,7 +17,7 @@ namespace DKIMCore
     /// <summary>
     /// Repersents an email message. Used during the signing process.
     /// </summary>
-	public class Email
+	internal class Email
 	{
         public Email()
         {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DKIMCore
 {
-	public class DkimHeaderValue  
+	internal class DkimHeaderValue  
 	{
 		internal const string VERSION = "v=";
 		internal const string ALGORITHM = "a=";

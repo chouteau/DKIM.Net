@@ -62,7 +62,6 @@ namespace DKIMCore
 		public string SignBody(Email email)
 		{
 			var cb = DkimCanonicalizer.CanonicalizeBody(email.RawBody);
-			var cb2 = DkimCanonicalizer.CanonicalizeBody(email.OriginalBody.Replace(System.Environment.NewLine, "=0D=0A") + System.Environment.NewLine);
 			var canonalizedBodyBuffer = email.BodyEncoding.GetBytes(cb);
 			var hash = PrivateKeySigner.Hash(canonalizedBodyBuffer);
 			var result = Convert.ToBase64String(hash);

@@ -7,20 +7,20 @@ using System.Text;
 
 namespace DKIMCore
 {
-    public static class MailMessageExtensions
-    {
-        private static readonly BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        private static readonly Type MailWriter = typeof(SmtpClient).Assembly.GetType("System.Net.Mail.MailWriter");
-        private static readonly ConstructorInfo MailWriterConstructor = MailWriter.GetConstructor(Flags, null, new[] { typeof(Stream) }, null);
-        private static readonly MethodInfo CloseMethod = MailWriter.GetMethod("Close", Flags);
-        private static readonly MethodInfo SendMethod = typeof(MailMessage).GetMethod("Send", Flags);
+	internal class HackedMailWriterContentReader : IEmailMessageRawContentReader
+	{
+		private static readonly BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		private static readonly Type MailWriter = typeof(SmtpClient).Assembly.GetType("System.Net.Mail.MailWriter");
+		private static readonly ConstructorInfo MailWriterConstructor = MailWriter.GetConstructor(Flags, null, new[] { typeof(Stream) }, null);
+		private static readonly MethodInfo CloseMethod = MailWriter.GetMethod("Close", Flags);
+		private static readonly MethodInfo SendMethod = typeof(MailMessage).GetMethod("Send", Flags);
 
         /// <summary>
         /// The raw contents of this MailMessage as a MemoryStream.
         /// </summary>
         /// <param name="self">The caller.</param>
         /// <returns>A MemoryStream with the raw contents of this MailMessage.</returns>
-        public static string RawMessage(this MailMessage self)
+        public string GetRawContent(System.Net.Mail.MailMessage self)
         {
             var ms = new MemoryStream();
             var mailWriter = MailWriterConstructor.Invoke(new object[] { ms });
@@ -29,5 +29,6 @@ namespace DKIMCore
             CloseMethod.Invoke(mailWriter, Flags, null, new object[] { }, null);
             return result;
         }
+
     }
 }

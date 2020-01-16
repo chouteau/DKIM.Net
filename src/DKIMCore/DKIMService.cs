@@ -6,22 +6,25 @@ using System.Text;
 
 namespace DKIMCore
 {
-	public class DKIMService : IDKIMService
+	internal class DKIMService : IDKIMService
 	{
 		public const string SIGNATURE_KEY = "DKIM-Signature";
 
 		public DKIMService(DKIMSettings dKIMSettings,
 			IPrivateKeySigner signer,
-			IEmailSigner dkimSigner)
+			IEmailSigner dkimSigner,
+			IEmailMessageRawContentReader emailMessageRawContentReader)
 		{
 			this.DKIMSettings = dKIMSettings;
 			this.PrivateKeySigner = signer;
 			this.DkimSigner = dkimSigner;
+			this.RawContentReader = emailMessageRawContentReader;
 		}
 
 		protected DKIMSettings DKIMSettings { get; }
 		protected IPrivateKeySigner PrivateKeySigner { get; }
 		protected IEmailSigner DkimSigner { get; }
+		protected IEmailMessageRawContentReader RawContentReader { get; }
 
 		public void KeySign(MailMessage mailMessage)
 		{
@@ -31,7 +34,7 @@ namespace DKIMCore
 		public void Sign(System.Net.Mail.MailMessage message)
 		{
 			// get email content and generate initial signature
-			var rawMessageText = message.RawMessage();
+			var rawMessageText = RawContentReader.GetRawContent(message);
 			var email = Parse(rawMessageText);
 			email.OriginalBody = message.Body;
 			email.BodyEncoding = message.BodyEncoding;
@@ -40,10 +43,10 @@ namespace DKIMCore
 
 			// signature value get formatted so add dummy signature value then remove it
 			message.Headers.Add(SIGNATURE_KEY, dkimHeaderValue.ToString());
-			var dkimRawMessageText = message.RawMessage();
+			var dkimRawMessageText = RawContentReader.GetRawContent(message);
 			var emailWithDkim = Parse(dkimRawMessageText);
 			emailWithDkim.BodyEncoding = message.BodyEncoding;
-			emailWithDkim.HeaderEncoding = message.HeadersEncoding;
+			emailWithDkim.HeaderEncoding = email.HeaderEncoding;
 
 			// sign email
 			var signature = DkimSigner.GenerateSignature(emailWithDkim);
@@ -156,11 +159,5 @@ namespace DKIMCore
 			var headerToCheck = messageBuilder.ToString().Trim();
 			return headerToCheck;
 		}
-
-		public string GetMailMessageRaw(MailMessage message)
-		{
-			return message.RawMessage();
-		}
-
 	}
 }

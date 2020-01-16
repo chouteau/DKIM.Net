@@ -20,6 +20,7 @@ namespace DKIMCore
 			services.AddTransient<IPrivateKeySigner, PrivateKeySigner>();
 			services.AddTransient<IDKIMService, DKIMService>();
 			services.AddTransient<IDKIMCanonicalizer, DKIMCanonicalizer>();
+			services.AddSingleton<IEmailMessageRawContentReader, LocalTempSmtpWriterContentReader>();
 			return services;
 		}
 	}

@@ -79,17 +79,7 @@ namespace DKIMCore
 							var h = headers[key];
 							sb.Append(h.Key);
 							sb.Append(':');
-							if (key == DKIMService.SIGNATURE_KEY)
-							{
-								// Remove b= value
-								var value = h.Value;
-								value = System.Text.RegularExpressions.Regex.Replace(value, "b=.*$", "b=", System.Text.RegularExpressions.RegexOptions.Singleline);
-								sb.Append(" " + value.Trim());
-							}
-							else
-							{
-								sb.Append(h.Value);
-							}
+							sb.Append(h.Value);
 							sb.Append(System.Environment.NewLine);
 						}
 
@@ -143,9 +133,10 @@ namespace DKIMCore
 							sb.Append(h.Key.Trim().ToLower());
 							sb.Append(':');
 
-							sb.Append(h.FoldedValue
+							var value = h.FoldedValue
 								? h.Value.Trim().Replace(System.Environment.NewLine, string.Empty).ReduceWitespace()
-								: h.Value.Trim().ReduceWitespace());
+								: h.Value.Trim().ReduceWitespace();
+							sb.Append(value);
 
 							sb.Append(System.Environment.NewLine);
 						}

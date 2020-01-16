@@ -12,7 +12,7 @@ using System.Text;
 
 namespace DKIMCore
 {
-	public interface IEmailSigner
+	internal interface IEmailSigner
 	{
         // string SignEmail(string text);
         DkimHeaderValue GenerateDkimHeaderValue(Email email);

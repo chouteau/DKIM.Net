@@ -11,7 +11,7 @@ namespace DKIMCore
     /// <summary>
     /// Stores the origional header key and value and wether or not the value is folded.
     /// </summary>
-    public class EmailHeader
+    internal class EmailHeader
     {
         /// <summary>
         /// Header Key

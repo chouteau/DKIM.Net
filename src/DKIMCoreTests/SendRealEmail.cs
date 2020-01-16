@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
+using DKIMCore;
+
 namespace DKIMCoreTests
 {
 	[TestClass]
@@ -21,35 +23,44 @@ namespace DKIMCoreTests
 			m_WebHost = (IWebHost)AppDomain.CurrentDomain.GetData("WebHhost");
 			DKIMService = m_WebHost.Services.GetRequiredService<DKIMCore.IDKIMService>();
 			Configuration = m_WebHost.Services.GetRequiredService<IConfiguration>();
+			EmailMessageRawContentReader = m_WebHost.Services.GetRequiredService<DKIMCore.IEmailMessageRawContentReader>();
 		}
 
 		protected IConfiguration Configuration { get; private set; }
 		protected DKIMCore.IDKIMService DKIMService { get; private set; }
+		internal DKIMCore.IEmailMessageRawContentReader EmailMessageRawContentReader { get; private set; }
 
 		[TestMethod]
 		public void Send_With_Body_File()
 		{
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
 			var message = new System.Net.Mail.MailMessage();
-			message.Body = string.Empty;
-			message.BodyEncoding = System.Text.Encoding.UTF8;
-			message.SubjectEncoding = System.Text.Encoding.UTF8;
-			message.HeadersEncoding = System.Text.Encoding.UTF8;
-			var subject = message.Subject = $"test dkim subject {DateTime.Now:HH:mm:ss}";
+
+			var encoding = Encoding.UTF8;
+			message.BodyEncoding = encoding;
+			message.SubjectEncoding = encoding;
+			message.HeadersEncoding = encoding;
+			message.SubjectEncoding = encoding;
+
+			message.Subject = $"Subject with accents éà" + '\u2190';
 			var bodyFile = System.IO.Path.Combine(System.Environment.CurrentDirectory, "body.html");
-			var body = System.IO.File.ReadLines(bodyFile);
-			var truncateBody = string.Join(System.Environment.NewLine, body.Take(40));
-			message.Body = truncateBody;
+			var body = System.IO.File.ReadAllText(bodyFile);
+			message.Body = body.Trim();
 			message.IsBodyHtml = true;
 			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
 			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
-			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");
-			var to = new System.Net.Mail.MailAddress(toSetting, "testto");
-			// var to = new System.Net.Mail.MailAddress("jdmbpqzidedhpj@dkimvalidator.com", "testto");
+			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "From with accent éà", encoding);
+			var to = new System.Net.Mail.MailAddress("jdmbpqzidedhpj@dkimvalidator.com", "testto");
 			message.To.Add(to);
 			var dkimDomain = Configuration.GetSection("SmtpSettings").GetValue<string>("DKIMDomain");
 			message.Headers.Add("Message-Id", $"<{Guid.NewGuid()}@{dkimDomain}>");
 
+			var content = EmailMessageRawContentReader.GetRawContent(message);
+
 			DKIMService.Sign(message);
+
+			content = EmailMessageRawContentReader.GetRawContent(message);
 
 			var smtpClient = new System.Net.Mail.SmtpClient();
 			smtpClient.Host = Configuration.GetSection("SmtpSettings").GetValue<string>("Host");
@@ -69,10 +80,10 @@ namespace DKIMCoreTests
 		{
 			var message = new System.Net.Mail.MailMessage();
 			message.Body = string.Empty;
-			// message.BodyEncoding = System.Text.Encoding.UTF8;
+			message.BodyEncoding = System.Text.Encoding.UTF8;
 			message.SubjectEncoding = System.Text.Encoding.UTF8;
 			message.HeadersEncoding = System.Text.Encoding.UTF8;
-			var subject = message.Subject = $"test dkim subject {DateTime.Now:HH:mm:ss}";
+			var subject = message.Subject = $"[test?] [dkim] subject é à {DateTime.Now:HH:mm:ss} ?";
 			var body = new StringBuilder();
 			body.AppendLine("<html>");
 			body.AppendLine(string.Empty);
@@ -90,8 +101,8 @@ namespace DKIMCoreTests
 			message.IsBodyHtml = true;
 			var fromSetting = Configuration.GetSection("TestSettings").GetValue<string>("From");
 			var toSetting = Configuration.GetSection("TestSettings").GetValue<string>("To");
-			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "testfrom");
-			var to = new System.Net.Mail.MailAddress("jdmbpqzidedhpj@dkimvalidator.com", "testto");
+			var from = message.From = new System.Net.Mail.MailAddress(fromSetting, "Accent éà");
+			var to = new System.Net.Mail.MailAddress("jdmbpqzidedhpj@dkimvalidator.com", "dkimvalidator");
 			message.To.Add(to);
 			var dkimDomain = Configuration.GetSection("SmtpSettings").GetValue<string>("DKIMDomain");
 			message.Headers.Add("Message-Id", $"<{Guid.NewGuid()}@{dkimDomain}>");
